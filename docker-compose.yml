@@ -1,0 +1,16 @@
+# docker-compose.yml
+
+version: '3.8'
+
+services:
+  api:
+    build: .
+
+    env_file:
+      - .env
+
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+    container_name: outreach_api
