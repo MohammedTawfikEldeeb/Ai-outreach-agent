@@ -104,7 +104,74 @@ streamlit run dashboard/streamlit_app.py
 * **Agent Monitoring:** LangSmith
 * **Backend:** FastAPI, Pydantic
 * **Data Handling:** Pandas, SQLite
+* **Frontend Dashboard:** Streamlit
 * **Tooling & Environment:** UV, Docker, Docker Compose
+
+## 🚀 CI/CD & Deployment Automation
+
+This project is configured with a complete Continuous Integration and Continuous Deployment (CI/CD) pipeline using **GitHub Actions**. The pipeline is designed to automatically build, package, and prepare the application for deployment on **Google Cloud Platform**, ensuring a reliable and modern workflow.
+
+### The Automated Workflow
+
+The CI/CD pipeline is triggered automatically on every `git push` to the `main` branch and performs the following steps:
+
+1.  **Trigger 🔄:** A GitHub Actions workflow is initiated.
+2.  **Authentication 🔑:** The workflow securely authenticates with Google Cloud using a Service Account Key stored in GitHub Secrets.
+3.  **Build 📦:** It builds the entire application, including all its Python dependencies, into a self-contained **Docker Image** using the provided `Dockerfile`.
+4.  **Push 🚚:** The newly built Docker Image is pushed and stored in **Google Artifact Registry**, making it available for deployment.
+5.  **Deployment Readiness ✅:** The final image in Artifact Registry is now ready to be deployed as a new revision on **Google Cloud Run**.
+
+---
+
+**Status Note:** *The full execution of this pipeline is currently paused due to the monthly free tier limitations of GitHub Actions. However, the entire workflow is fully configured, tested, and ready for activation. This setup demonstrates the ability to create and manage a professional end-to-end deployment pipeline.
+
+## 📊 Streamlit Dashboard Deployment Options
+
+The Streamlit dashboard can be deployed in two ways after successfully deploying the API to the cloud:
+
+### Option 1 (Easiest & Fastest): Run Locally
+This is the method you'll use to verify that your cloud API is working correctly.
+
+**Steps:**
+1. Open the `dashboard/streamlit_app.py` file on your local machine.
+2. Go to the `API_BASE_URL` line and change it to point to your new Google Cloud API URL:
+
+```python
+# dashboard/streamlit_app.py
+
+# ... existing code ...
+# Old local address
+# API_BASE_URL = "http://127.0.0.1:8000" 
+
+# ✅ New Google Cloud API address
+API_BASE_URL = "https://ai-outreach-agent-xxxx.a.run.app" 
+# ... existing code ...
+```
+
+**How to run:**
+Execute `streamlit run dashboard/streamlit_app.py` in your terminal.
+
+**What happens here?**
+The dashboard running on your laptop now communicates with the API deployed on Cloud Run instead of the local container.
+
+### Option 2 (Most Professional): Deploy to the Cloud
+This is the final step if you want to make the entire project accessible to anyone worldwide without requiring your local machine to be running.
+
+**What we do:**
+1. Create a dedicated Dockerfile for the dashboard (similar to the existing API Dockerfile).
+2. Create a separate Cloud Run service for the dashboard that uses this Dockerfile.
+
+**Final result:** You'll have two URLs:
+1. API URL (your backend service)
+2. Dashboard URL (frontend interface to share with others)
+
+### Required Secrets for Deployment
+To deploy successfully to Google Cloud, you need to set the following secrets in your GitHub repository:
+
+* `GCP_PROJECT_ID`: Your Google Cloud Project ID
+* `GCP_SA_KEY`: Your Google Cloud Service Account Key (JSON format)
+
+The deployment workflow is defined in `.github/workflows/deploy.yml` and requires these secrets to authenticate with Google Cloud services.
 
 ---
 
@@ -153,3 +220,4 @@ streamlit run dashboard/streamlit_app.py
     uvicorn app.main:app --reload
     ```
     The API will be available for testing at `http://127.0.0.1:8000/docs`.
+
